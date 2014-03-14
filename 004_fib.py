@@ -5,7 +5,7 @@
 # File:  004_fib.py
 #-----------------------------------------------------------------------------
 # Edit log
-# 11/17/2013 edit log here
+# 103/14/2014 completed rosalind test
 #
 #-----------------------------------------------------------------------------
 # [TODO]
@@ -22,13 +22,9 @@
 
 # Problem:
 
-# A sequence is an ordered collection of objects (usually numbers), which are allowed to repeat. Sequences can be finite or infinite. Two examples are the finite sequence (π,−2√,0,π) and the infinite sequence of odd numbers (1,3,5,7,9,…). We use the notation an to represent the n-th term of a sequence.
-
-# A recurrence relation is a way of defining the terms of a sequence with respect to the values of previous terms. In the case of Fibonacci's rabbits from the introduction, any given month will contain the rabbits that were alive the previous month, plus any new offspring. A key observation is that the number of offspring in any month is equal to the number of rabbits that were alive two months prior. As a result, if Fn represents the number of rabbit pairs alive after the n-th month, then we obtain the Fibonacci sequence having terms Fn that are defined by the recurrence relation Fn=Fn−1+Fn−2 (with F1=F2=1 to initiate the sequence). Although the sequence bears Fibonacci's name, it was known to Indian mathematicians over two millennia ago.
-
 # When finding the n-th term of a sequence defined by a recurrence relation, we can simply use the recurrence relation to generate terms for progressively larger values of n. This problem introduces us to the computational technique of dynamic programming, which successively builds up solutions by using the answers to smaller cases.
 
-# Given: Positive integers n≤40 and k≤5.
+# Given: Positive integers n<=40 and k<=5.
 
 # Return: The total number of rabbit pairs that will be present after n months if we begin with 1 pair and in each generation, every pair of reproduction-age rabbits produces a litter of k rabbit pairs (instead of only 1 pair).
 
@@ -37,38 +33,136 @@
 # Sample Output
 # 19
 
-# 1
-# 1
-# 1(3)
-# 1(3)(3)
-# 1(3.9)(3)(3)
+# tested data
+# totalMonths = 34
+# offspringPerPair = 5
+# answer is 313507166394911
 
+#-----------------------------------------------------------------------------
 # --notes
 # A key observation is that the number of offspring in any month is equal to the number of rabbits that were alive two months prior
 
+# m1
+# 1
+
+# m2
+# 1
+
+# m3
+# 1(3)
+
+# m4
+# 1(3)(3)
+
+# m5
+# 1(3.9)(3)(3)
+
+# newBorns = 1
+# newPregnant = 0
+# adults = 0
+
+# after 2 month
+# newBorns = 0
+# newPregnant = 1
+# adults = 0
+
+# after 3 months
+# newBorns = 3
+# newPregnant = 0
+# adults = 1
+
+# after 4 months
+# newBorns = 3
+# newPregnant = 3
+# adults = 1
+
+# after 5 months
+# newBorns = 12
+# newPregnant = 3
+# adults = 4
+
+# after 6 months
+# newBorns = 21
+# newPregnant = 12
+# adults = 7
+
+
+
+# first month
+# 1, 0, 0
+# second month
+# 0, 1, 0
+# 3rd month
+# adults += newPregnant
+# newPregnant = newBorns
+# newBorns = adults * 3
+# 4th month
 
 #-----------------------------------------------------------------------------
 # Place any necessary functions below this.
 #-----------------------------------------------------------------------------
-def do_something(x):
-    # Place any line processing code here.
-    x += 1
-    return x
+def loopThruMonths(totalMonths , offspringPerPair):
+    month = 1
+    newBorns = 1
+    newPregnant = 0
+    adults = 0
+    total = 0
+
+    if month == 1 and totalMonths >=1:
+        newBorns = 1
+        newPregnant = 0
+        adults = 0
+        month += 1
+    if month == 2 and totalMonths >=2:
+        newBorns = 0
+        newPregnant = 1
+        adults = 0
+        month += 1
+
+    while month > 2 and month <= totalMonths:
+        adults += newPregnant
+        newPregnant = newBorns
+        newBorns = adults * offspringPerPair
+        total = adults + newPregnant + newBorns
+        month +=1
+    varList = [newBorns, newPregnant, adults, total]
+
+    return varList
 
 
 #-----------------------------------------------------------------------------
 # Begin the main program.
 #-----------------------------------------------------------------------------
 # initialize variables
-x = 1
+
+totalMonths = 5
+offspringPerPair = 3
 
 
-print do_something(x)
+if totalMonths <= 40 and offspringPerPair <= 5:
+    newBorns, newPregnant, adults, total = loopThruMonths(totalMonths, offspringPerPair)
+    print 'adults: ' , adults
+    print 'newPregnant: ' , newPregnant
+    print 'newBorns: ' , newBorns
+    print 'total: ' , total
+else:
+    print 'Total months has to be 40 or below and total \n offspring per rabbit pair has to be 5 or below!'
 
 
 
+#-----------------------------------------------------------------------------
 # test
-# py.test 002_rna.py
+#-----------------------------------------------------------------------------
+
+# py.test 004_fib.py
 def test_one():
-	x = 5
-	assert do_something(x) == 6
+    totalMonths = 5
+    offspringPerPair = 3
+    newBorns, newPregnant, adults, total = loopThruMonths(totalMonths, offspringPerPair)
+    assert  total == 19
+
+def test_two():
+    totalMonths = 34
+    offspringPerPair = 5
+    newBorns, newPregnant, adults, total = loopThruMonths(totalMonths, offspringPerPair)
+    assert  total == 313507166394911
